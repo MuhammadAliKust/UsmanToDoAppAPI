@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
+import 'package:todo_app_api/configs/backend_configs.dart';
+import 'package:todo_app_api/configs/end_point.dart';
 import 'package:todo_app_api/models/login.dart';
 import 'package:todo_app_api/models/user.dart';
 
@@ -25,12 +28,11 @@ class AuthServices {
 
   ///Login
   Future<LoginResponseModel> loginUser(
-      {required String email,
-      required String password,
-      required String name}) async {
+      {required String email, required String password}) async {
     http.Response response = await http.post(
-        Uri.parse('https://todo-nu-plum-19.vercel.app/users/login'),
-        body: {"name": name, "email": email, "password": password});
+        Uri.parse(BackendConfigs.kBaseUrl + EndPoints.kLogin),
+        body: jsonEncode({"email": email, "password": password}),
+        headers: {'Content-Type': 'application/json'});
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return LoginResponseModel.fromJson(jsonDecode(response.body));
@@ -41,8 +43,9 @@ class AuthServices {
 
   ///Get User Data
   Future<UserModel> getUserProfile({required String token}) async {
+    log(token);
     http.Response response = await http.get(
-        Uri.parse('https://todo-nu-plum-19.vercel.app/users/login'),
+        Uri.parse(BackendConfigs.kBaseUrl + EndPoints.kGetProfile),
         headers: {'Authorization': token});
 
     if (response.statusCode == 200 || response.statusCode == 201) {
