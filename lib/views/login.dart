@@ -44,25 +44,31 @@ class _LoginViewState extends State<LoginView> {
                             email: emailController.text,
                             password: pwdController.text)
                         .then((val) async {
-
-                      if (val.user == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text("Email or password is invalid")));
-                      } else {
-                        await AuthServices()
-                            .getUserProfile(token: val.token.toString())
-                            .then((val) {
-                          isLoading = false;
-                          setState(() {});
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  content: Text(val.user!.name.toString()),
-                                );
-                              });
-                        });
-                      }
+                      isLoading = false;
+                      setState(() {});
+                      val.fold((left) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(left.message.toString())));
+                      }, (right) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(right.message.toString())));
+                      });
+                    //   if (val.user == null) {
+                    //   } else {
+                    //     await AuthServices()
+                    //         .getUserProfile(token: val.token.toString())
+                    //         .then((val) {
+                    //       isLoading = false;
+                    //       setState(() {});
+                    //       showDialog(
+                    //           context: context,
+                    //           builder: (context) {
+                    //             return AlertDialog(
+                    //               content: Text(val.user!.name.toString()),
+                    //             );
+                    //           });
+                    //     });
+                    //   }
                     });
                   } catch (e) {
                     isLoading = false;

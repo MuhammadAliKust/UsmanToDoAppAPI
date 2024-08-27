@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   http: ^1.2.2
   loading_overlay: ^0.3.0
+  dartz: ^0.10.1
 
 dev_dependencies:
   flutter_test:

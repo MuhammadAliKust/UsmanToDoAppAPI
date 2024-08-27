@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:todo_app_api/configs/backend_configs.dart';
 import 'package:todo_app_api/configs/end_point.dart';
+import 'package:todo_app_api/models/error.dart';
 import 'package:todo_app_api/models/login.dart';
 import 'package:todo_app_api/models/user.dart';
 
@@ -27,17 +29,35 @@ class AuthServices {
   }
 
   ///Login
-  Future<LoginResponseModel> loginUser(
+  Future<Either<ErrorModel, LoginResponseModel>> loginUser(
       {required String email, required String password}) async {
     http.Response response = await http.post(
         Uri.parse(BackendConfigs.kBaseUrl + EndPoints.kLogin),
         body: jsonEncode({"email": email, "password": password}),
         headers: {'Content-Type': 'application/json'});
-
+log(response.request!.url.toString());
+log(response.reasonPhrase.toString());
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return LoginResponseModel.fromJson(jsonDecode(response.body));
+      return Right(LoginResponseModel.fromJson(jsonDecode(response.body)));
+    } else if (response.statusCode == 400) {
+      return Left(
+          ErrorModel(success: false, message: "Email or Password is invalid."));
+    } else if (response.statusCode == 401) {
+      return Left(ErrorModel(
+          success: false,
+          message: "Sorry! You are not allowed to perform this operation"));
+    } else if (response.statusCode == 404) {
+      return Left(ErrorModel(
+          success: false,
+          message: "Sorry! Your requested data does not exist."));
+    } else if (response.statusCode == 500) {
+      return Left(ErrorModel(
+          success: false,
+          message: "Sorry! We are unable to connect our servers."));
     } else {
-      return LoginResponseModel();
+      return Left(ErrorModel(
+          success: false,
+          message: "Sorry! Something went wrong. Please try again later."));
     }
   }
 
